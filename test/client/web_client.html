@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Streamable HTTP Transport Test Client</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: #555;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        input, select, button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.connecting {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        
+        .message-input {
+            width: 100%;
+            height: 100px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .sample-messages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .sample-message {
+            padding: 8px;
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .sample-message:hover {
+            background-color: #dee2e6;
+        }
+        
+        .timestamp {
+            color: #6c757d;
+            font-size: 11px;
+        }
+        
+        .message-type {
+            font-weight: bold;
+        }
+        
+        .message-type.request {
+            color: #007bff;
+        }
+        
+        .message-type.response {
+            color: #28a745;
+        }
+        
+        .message-type.notification {
+            color: #ffc107;
+        }
+        
+        .message-type.error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 MCP Streamable HTTP Transport Test Client</h1>
+    
+    <div class="container">
+        <div class="section">
+            <h2>🌐 Server Configuration</h2>
+            <div class="controls">
+                <input type="text" id="serverUrl" value="http://localhost:8080" placeholder="Server URL">
+                <button onclick="updateServerUrl()">Update Server URL</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="section">
+            <h2>📡 SSE Stream Connection</h2>
+            <div id="sseStatus" class="status disconnected">Disconnected</div>
+            <div class="controls">
+                <button id="connectBtn" onclick="connectSSE()">Connect to Stream</button>
+                <button id="disconnectBtn" onclick="disconnectSSE()" disabled>Disconnect</button>
+                <button onclick="clearSSELog()">Clear Log</button>
+            </div>
+            <div id="sseLog" class="log"></div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="section">
+            <h2>📤 HTTP POST Requests</h2>
+            <div class="controls">
+                <button onclick="clearRequestLog()">Clear Log</button>
+            </div>
+            
+            <h3>Sample Messages</h3>
+            <div class="sample-messages">
+                <div class="sample-message" onclick="loadSampleMessage('initialize')">
+                    <strong>Initialize</strong><br>
+                    <small>Initialize the MCP connection</small>
+                </div>
+                <div class="sample-message" onclick="loadSampleMessage('listTools')">
+                    <strong>List Tools</strong><br>
+                    <small>Get available tools</small>
+                </div>
+                <div class="sample-message" onclick="loadSampleMessage('listResources')">
+                    <strong>List Resources</strong><br>
+                    <small>Get available resources</small>
+                </div>
+                <div class="sample-message" onclick="loadSampleMessage('ping')">
+                    <strong>Ping</strong><br>
+                    <small>Test server connectivity</small>
+                </div>
+                <div class="sample-message" onclick="loadSampleMessage('initialized')">
+                    <strong>Initialized</strong><br>
+                    <small>Notification after init</small>
+                </div>
+            </div>
+            
+            <h3>Custom Message</h3>
+            <textarea id="messageInput" class="message-input" placeholder="Enter JSON-RPC message here..."></textarea>
+            <div class="controls">
+                <button onclick="sendRequest()">Send Request</button>
+                <button onclick="formatMessage()">Format JSON</button>
+            </div>
+            
+            <h3>Request/Response Log</h3>
+            <div id="requestLog" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource = null;
+        let serverUrl = 'http://localhost:8080';
+        let messageId = 1;
+
+        // Sample MCP messages
+        const sampleMessages = {
+            initialize: {
+                jsonrpc: "2.0",
+                id: 1,
+                method: "initialize",
+                params: {
+                    protocolVersion: "2024-11-05",
+                    capabilities: {
+                        experimental: {}
+                    },
+                    clientInfo: {
+                        name: "web-test-client",
+                        version: "1.0.0"
+                    }
+                }
+            },
+            listTools: {
+                jsonrpc: "2.0",
+                id: 2,
+                method: "tools/list",
+                params: null
+            },
+            listResources: {
+                jsonrpc: "2.0",
+                id: 3,
+                method: "resources/list",
+                params: null
+            },
+            ping: {
+                jsonrpc: "2.0",
+                id: 4,
+                method: "ping",
+                params: null
+            },
+            initialized: {
+                jsonrpc: "2.0",
+                method: "initialized",
+                params: null
+            }
+        };
+
+        function updateServerUrl() {
+            serverUrl = document.getElementById('serverUrl').value;
+            logSSE(`🌐 Server URL updated to: ${serverUrl}`);
+        }
+
+        function connectSSE() {
+            if (eventSource) {
+                disconnectSSE();
+            }
+
+            const url = `${serverUrl}/mcp/stream`;
+            logSSE(`📡 Connecting to SSE stream: ${url}`);
+            
+            document.getElementById('sseStatus').textContent = 'Connecting...';
+            document.getElementById('sseStatus').className = 'status connecting';
+            document.getElementById('connectBtn').disabled = true;
+
+            eventSource = new EventSource(url);
+
+            eventSource.onopen = function(event) {
+                logSSE('✅ SSE connection established');
+                document.getElementById('sseStatus').textContent = 'Connected';
+                document.getElementById('sseStatus').className = 'status connected';
+                document.getElementById('disconnectBtn').disabled = false;
+            };
+
+            eventSource.onmessage = function(event) {
+                logSSE(`📨 Received message: ${event.data}`, 'response');
+                
+                // Try to parse as MCP message
+                try {
+                    const message = JSON.parse(event.data);
+                    logSSE(`   📋 Parsed MCP message - Method: ${message.method || 'N/A'}, ID: ${message.id || 'N/A'}`);
+                } catch (e) {
+                    logSSE(`   ⚠️ Could not parse as JSON: ${e.message}`);
+                }
+            };
+
+            eventSource.addEventListener('mcp_message', function(event) {
+                logSSE(`📨 Received MCP message event: ${event.data}`, 'response');
+            });
+
+            eventSource.onerror = function(event) {
+                logSSE('❌ SSE connection error', 'error');
+                document.getElementById('sseStatus').textContent = 'Error/Disconnected';
+                document.getElementById('sseStatus').className = 'status disconnected';
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            };
+        }
+
+        function disconnectSSE() {
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+                logSSE('🛑 SSE connection closed');
+                document.getElementById('sseStatus').textContent = 'Disconnected';
+                document.getElementById('sseStatus').className = 'status disconnected';
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            }
+        }
+
+        function logSSE(message, type = 'info') {
+            const log = document.getElementById('sseLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const typeClass = type === 'error' ? 'error' : type === 'response' ? 'response' : 'info';
+            log.innerHTML += `<span class="timestamp">[${timestamp}]</span> <span class="message-type ${typeClass}">${message}</span>\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearSSELog() {
+            document.getElementById('sseLog').innerHTML = '';
+        }
+
+        function loadSampleMessage(type) {
+            const message = sampleMessages[type];
+            if (message) {
+                // Update ID for requests
+                if (message.id !== undefined) {
+                    message.id = messageId++;
+                }
+                document.getElementById('messageInput').value = JSON.stringify(message, null, 2);
+            }
+        }
+
+        function formatMessage() {
+            const input = document.getElementById('messageInput');
+            try {
+                const parsed = JSON.parse(input.value);
+                input.value = JSON.stringify(parsed, null, 2);
+            } catch (e) {
+                logRequest(`❌ Invalid JSON: ${e.message}`, 'error');
+            }
+        }
+
+        async function sendRequest() {
+            const messageText = document.getElementById('messageInput').value.trim();
+            if (!messageText) {
+                logRequest('❌ Please enter a message', 'error');
+                return;
+            }
+
+            let message;
+            try {
+                message = JSON.parse(messageText);
+            } catch (e) {
+                logRequest(`❌ Invalid JSON: ${e.message}`, 'error');
+                return;
+            }
+
+            const url = `${serverUrl}/mcp/request`;
+            logRequest(`📤 Sending POST request to: ${url}`, 'request');
+            logRequest(`   📋 Message: ${JSON.stringify(message)}`, 'request');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(message)
+                });
+
+                logRequest(`📥 Response status: ${response.status}`, 'response');
+
+                if (response.status === 204) {
+                    logRequest('   ✅ Request processed successfully (no response expected)', 'response');
+                } else if (response.ok) {
+                    const responseData = await response.text();
+                    logRequest(`   📋 Response body: ${responseData}`, 'response');
+                    
+                    try {
+                        const parsed = JSON.parse(responseData);
+                        logRequest(`   ✅ Parsed MCP response - ID: ${parsed.id || 'N/A'}, Error: ${parsed.error ? 'Yes' : 'No'}`, 'response');
+                    } catch (e) {
+                        logRequest(`   ⚠️ Could not parse response as JSON`, 'response');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    logRequest(`   ❌ Error response: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                logRequest(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        function logRequest(message, type = 'info') {
+            const log = document.getElementById('requestLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const typeClass = type === 'error' ? 'error' : type === 'response' ? 'response' : type === 'request' ? 'request' : 'info';
+            log.innerHTML += `<span class="timestamp">[${timestamp}]</span> <span class="message-type ${typeClass}">${message}</span>\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearRequestLog() {
+            document.getElementById('requestLog').innerHTML = '';
+        }
+
+        // Initialize with a sample message
+        window.onload = function() {
+            loadSampleMessage('initialize');
+            logSSE('🚀 Web client initialized');
+            logRequest('🚀 Web client initialized');
+        };
+    </script>
+</body>
+</html>

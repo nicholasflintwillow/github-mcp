@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "go-github": {
+      "type": "streamable-http",
+      "url": "http://localhost:8080/mcp/",
+      "enabled": true
+    }
+  }
+}

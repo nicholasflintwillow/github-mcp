@@ -30,13 +30,41 @@
 
 Each major endpoint group now has its own dedicated documentation page. Click a group below to view detailed endpoints, descriptions, and links to the official GitHub documentation:
 
+- [Actions Endpoints](endpoints/actions.md)
+- [Activity Endpoints](endpoints/activity.md)
+- [Apps Endpoints](endpoints/apps.md)
+- [Branches Endpoints](endpoints/branches.md)
+- [Checks Endpoints](endpoints/checks.md)
+- [Codespaces Endpoints](endpoints/codespaces.md)
+- [Collaborators Endpoints](endpoints/collaborators.md)
+- [Commits Endpoints](endpoints/commits.md)
+- [Copilot Endpoints](endpoints/copilot.md)
+- [Dependabot Endpoints](endpoints/dependabot.md)
+- [Dependency Graph Endpoints](endpoints/dependency-graph.md)
+- [Deployments Endpoints](endpoints/deployments.md)
+- [Gists Endpoints](endpoints/gists.md)
+- [Git Database Endpoints](endpoints/git-database.md)
+- [Interactions Endpoints](endpoints/interactions.md)
 - [Issues Endpoints](endpoints/issues.md)
+- [Licenses Endpoints](endpoints/licenses.md)
+- [Markdown Endpoints](endpoints/markdown.md)
+- [Meta Endpoints](endpoints/meta.md)
+- [Metrics Endpoints](endpoints/metrics.md)
+- [Migrations Endpoints](endpoints/migrations.md)
+- [Organizations Endpoints](endpoints/organizations.md)
+- [Packages Endpoints](endpoints/packages.md)
+- [Projects (Classic) Endpoints](endpoints/projects-classic.md)
+- [Projects Endpoints](endpoints/projects.md)
+- [Pull Requests Endpoints](endpoints/pull-requests.md)
+- [Rate Limit Endpoints](endpoints/rate-limit.md)
+- [Reactions Endpoints](endpoints/reactions.md)
+- [Releases Endpoints](endpoints/releases.md)
 - [Repositories Endpoints](endpoints/repos.md)
+- [Search Endpoints](endpoints/search.md)
+- [Secret Scanning Endpoints](endpoints/secret-scanning.md)
 - [Security Advisories Endpoints](endpoints/security-advisories.md)
 - [Teams Endpoints](endpoints/teams.md)
 - [Users Endpoints](endpoints/users.md)
-
-Additional endpoint group pages can be added following this pattern.
 
 ---
 

@@ -32,6 +32,7 @@ Each major endpoint group now has its own dedicated documentation page. Click a 
 
 - [Issues Endpoints](endpoints/issues.md)
 - [Repositories Endpoints](endpoints/repos.md)
+- [Security Advisories Endpoints](endpoints/security-advisories.md)
 - [Teams Endpoints](endpoints/teams.md)
 - [Users Endpoints](endpoints/users.md)
 

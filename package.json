@@ -1,0 +1,22 @@
+{
+  "name": "github-mcp",
+  "version": "1.0.0",
+  "description": "GitHub API documentation generator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "github",
+    "api",
+    "documentation",
+    "openapi"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@readme/openapi-parser": "^2.5.0",
+    "js-yaml": "^4.1.0",
+    "markdown-it": "^13.0.1"
+  }
+}
